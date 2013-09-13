@@ -2,6 +2,7 @@
 
 namespace MockSockets\Response
 {
+
     use MockSockets\Http\Header;
 
     class Response
@@ -15,6 +16,8 @@ namespace MockSockets\Response
 
         private $error = null;
 
+        private $body = null;
+
         public function setStatus($status)
         {
             $this->status = $status;
@@ -27,12 +30,27 @@ namespace MockSockets\Response
 
         public function setId($id)
         {
-            $this->id = $id;
+            $this->id = intval($id);
+        }
+
+        public function setBody($body)
+        {
+            $this->body = $body;
         }
 
         public function setError($errorCode, $errorMessage)
         {
             $this->error = array('code' => $errorCode, 'message' => $errorMessage);
+        }
+
+        public function getBody()
+        {
+            return $this->body;
+        }
+
+        public function isError()
+        {
+            return !is_null($this->error);
         }
 
         public function getError()

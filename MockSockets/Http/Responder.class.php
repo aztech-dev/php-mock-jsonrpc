@@ -3,7 +3,7 @@
 namespace MockSockets\Http
 {
 
-    use MockSockets\SocketService;
+    use MockSockets\Sockets\SocketService;
     use MockSockets\Loggers\Logger;
     use MockSockets\Response\Response;
 
@@ -25,8 +25,11 @@ namespace MockSockets\Http
 
         private function writeJsonResponse(Response $response)
         {
-            $json = json_encode($response->getError(), JSON_FORCE_OBJECT);
+            $body['id'] = $response->getId();
+            $body['result'] = ($response->isError()) ? null : $response->getBody();
+            $body['error'] =  ($response->isError()) ? $response->getError() : null;
             
+            $json = json_encode($body, JSON_FORCE_OBJECT);
             $headers = $this->getHttpHeaders($response);
             
             $responseHeaders = array();

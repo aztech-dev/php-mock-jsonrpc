@@ -3,12 +3,8 @@
 namespace MockSockets
 {
 
-    use MockSockets\Requests\RequestBuilder;
-    use MockSockets\Http\Listener;
     use MockSockets\Loggers\EchoLogger;
-    use MockSockets\Http\Responder;
-    use MockSockets\Expectations\ReturnErrorExpectation;
-    use MockSockets\JsonRpc\JsonRpcRequest;
+    use MockSockets\Sockets\SocketHandler;
 
     class MockSocket
     {
@@ -24,8 +20,6 @@ namespace MockSockets
         public function __construct($port = 50000)
         {
             $this->port = $port;
-            
-            $this->requestBuilder = new RequestBuilder();
             $this->logger = new EchoLogger();
         }
 
@@ -44,62 +38,19 @@ namespace MockSockets
         {
             $this->sock = $this->createSocket(false);
             $this->listening = true;
+            $socketHandler = new SocketHandler($this->logger);
             
             while ($this->listening)
             {
-                if (($writeSocket = socket_accept($this->sock)) !== false)
+                if (($clientSocket = socket_accept($this->sock)) !== false)
                 {
-                    $this->logConnection($writeSocket);
-                    
-                    socket_set_nonblock($writeSocket);
-                    
-                    $listener = new Listener($writeSocket, $this->logger);
-                    $request = $listener->readRequest();
-                    
-                    $responder = new Responder($writeSocket, $this->logger);
-                    
-                    $expectation = new ReturnErrorExpectation();
-                    $expectation->setMethod('bla');
-                    $expectation->setErrorCode(-1);
-                    $expectation->setErrorMessage('random error from expectation');
-                    $expectation->setId(1);
-                    
-                    $jsonRpcRequest = new JsonRpcRequest($request);
-                    
-                    if ($expectation->matches($jsonRpcRequest))
-                    {
-                        $response = $expectation->getResponse();
-                        $responder->send($response);
-                    }
-                    
-                    $this->logConnectionClosed($writeSocket);
-                    socket_close($writeSocket);
-                    
-                    $this->listening = false;
+                    $socketHandler->handle($clientSocket);
+                    $this->listening = !$socketHandler->shouldStopListening();
                 }
             }
             
+            $this->logger->log('Closing listening socket.');
             socket_close($this->sock);
-        }
-
-        private function logConnection($socket)
-        {
-            $this->logger->log(sprintf("%s: Accepted connection", $this->getPeerName($socket)));
-        }
-
-        private function logConnectionClosed($socket)
-        {
-            $this->logger->log(sprintf("%s: Closing connection", $this->getPeerName($socket)));
-        }
-
-        private function getPeerName($socket)
-        {
-            $address = "";
-            $port = 0;
-            
-            socket_getpeername($socket, $address, $port);
-            
-            return sprintf('%s:%s', $address, $port);
         }
     }
 }

@@ -17,6 +17,11 @@ namespace MockSockets\Assertions
             $this->expectedId = $expectedId;
         }
         
+        public function getExpectedId()
+        {
+            return $this->expectedId;
+        }
+        
         public function verify(JsonRpcRequest $request)
         {
             return ($request->getId() == $this->expectedId);

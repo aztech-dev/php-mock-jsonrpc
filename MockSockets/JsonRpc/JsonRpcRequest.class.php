@@ -18,11 +18,11 @@ namespace MockSockets\JsonRpc
         {
             $this->request = $request;
             
-            $jsonBody = json_decode($request->getBody(), false);
+            $jsonBody = json_decode($request->getBody(), true);
             
-            $this->method = $jsonBody->method;
-            $this->params = $jsonBody->params;
-            $this->id = $jsonBody->id;
+            $this->method = $jsonBody['method'];
+            $this->params = $jsonBody['params'];
+            $this->id = $jsonBody['id'];
         }
         
         public function getMethod()

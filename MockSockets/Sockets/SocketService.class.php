@@ -1,8 +1,7 @@
 <?php
 
-namespace MockSockets
+namespace MockSockets\Sockets
 {
-
     use MockSockets\Loggers\Logger;
     use MockSockets\Loggers\NullLogger;
 

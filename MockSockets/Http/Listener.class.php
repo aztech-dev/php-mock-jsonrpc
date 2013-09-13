@@ -5,7 +5,7 @@ namespace MockSockets\Http
 
     use MockSockets\Loggers\Logger;
     use MockSockets\LoggersNullLogger;
-    use MockSockets\SocketService;
+    use MockSockets\Sockets\SocketService;
     use MockSockets\Requests\RequestBuilder;
 
     class Listener extends SocketService

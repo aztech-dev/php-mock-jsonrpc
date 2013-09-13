@@ -64,7 +64,7 @@ namespace MockSockets\Expectations
             
             $response->setStatus(200);
             $response->setContentType('application/json');
-            $response->setId($this->id);
+            $response->setId($this->id->getExpectedId());
             $response->setError($this->errorCode, $this->errorMessage);
             
             return $response;
