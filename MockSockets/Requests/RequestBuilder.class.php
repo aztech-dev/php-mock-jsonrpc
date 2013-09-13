@@ -2,7 +2,8 @@
 
 namespace MockSockets\Requests
 {
-
+    use MockSockets\Http\Header;
+    
     class RequestBuilder
     {
         public function buildRequest($requestData)
@@ -22,7 +23,7 @@ namespace MockSockets\Requests
             $rawHeaders = explode("\r\n", $headerSection[0]);
             
             $requestLine = array_slice($rawHeaders, 0, 1);
-            $requestLineItems = explode(' ', $requestLine);
+            $requestLineItems = explode(' ', $requestLine[0]);
             
             if (count($requestLineItems) !== 3)
             {
@@ -43,8 +44,11 @@ namespace MockSockets\Requests
             
             foreach (array_slice($rawHeaders, 1) as $rawHeader)
             {
-                $header = $this->parseHeader($rawHeader);
-                $headers[$header->getName()] = $header;
+                if (!empty(trim($rawHeader)))
+                {
+                    $header = $this->parseHeader($rawHeader);
+                    $headers[$header->getName()] = $header;
+                }
             }
             
             return $headers;
@@ -52,9 +56,9 @@ namespace MockSockets\Requests
 
         private function parseHeader($rawHeader)
         {
-            $parts = explode(':', $rawHeader, 1);
-            
-            return new RequestHeader(trim($parts[0]), trim($parts[1]));
+            $parts = explode(':', $rawHeader, 2);
+                        
+            return new Header(trim($parts[0]), trim($parts[1]));
         }
         
         private function extractRawBody($requestData)

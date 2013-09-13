@@ -1,8 +1,8 @@
 <?php
 
-namespace MockSockets\Requests
+namespace MockSockets\Http
 {
-    class RequestHeader
+    class Header
     {
         private $name;
         private $value;
@@ -26,6 +26,11 @@ namespace MockSockets\Requests
         public function setValue($value)
         {
             $this->value = $value;
+        }
+        
+        public function __toString()
+        {
+            return sprintf('%s: %s', $this->name, $this->value);
         }
     }
 }
