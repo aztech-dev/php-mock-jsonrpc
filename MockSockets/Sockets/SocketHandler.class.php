@@ -33,18 +33,33 @@ namespace MockSockets\Sockets
             return $request->getId() == -1;
         }
 
-        protected function handleAdminMethod($socket, JsonRpcRequest $request)
+        protected function handleAdminMethod(JsonRpcRequest $request)
         {
-            $responder = new Responder($socket, $this->logger);
-            $response = $this->commandHandler->handleAdminCommand($request);
-            $responder->send($response);
+            return $this->commandHandler->handleAdminCommand($request);
         }
 
-        protected function handleMethod($socket, JsonRpcRequest $request)
+        protected function handleMethod(JsonRpcRequest $request)
         {
+            return $this->commandHandler->handleMethod($request);
+        }
+        
+        protected function handleRequest($socket, JsonRpcRequest $request)
+        {
+            if ($this->isAdminRequest($request))
+            {
+                $response = $this->handleAdminMethod($request);
+            }
+            else
+            {
+                $response = $this->handleMethod($request);
+            }
+            
             $responder = new Responder($socket, $this->logger);
-            $response = $this->commandHandler->handleMethod($request);
-            $responder->send($response);
+            
+            if ($response != null)
+            {
+                $responder->send($response);
+            }
         }
 
         public function handle($socket)
@@ -54,16 +69,9 @@ namespace MockSockets\Sockets
             
             $listener = new Listener($socket, $this->logger);
             $request = $listener->readRequest();
-            $jsonRpcRequest = new JsonRpcRequest($request);
             
-            if ($this->isAdminRequest($jsonRpcRequest))
-            {
-                $this->handleAdminMethod($socket, $jsonRpcRequest);
-            }
-            else
-            {
-                $this->handleMethod($socket, $jsonRpcRequest);
-            }
+            $jsonRpcRequest = new JsonRpcRequest($request);
+            $this->handleRequest($socket, $jsonRpcRequest);
             
             $this->logConnectionClosed($socket);
             socket_close($socket);

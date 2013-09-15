@@ -29,5 +29,12 @@ namespace MockSockets\Admin
             
             $this->connector->query('expect', $params, false);
         }
+        
+        public function expectResult($method, $id, $result)
+        {
+            $params = array('type' => 'result', 'method' => $method, 'id' => $id, 'result' => $result);
+        
+            $this->connector->query('expect', $params, false);
+        }
     }
 }

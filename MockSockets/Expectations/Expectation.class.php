@@ -8,7 +8,6 @@ namespace MockSockets\Expectations
 
     interface Expectation
     {
-
         function setMethod($name);
 
         function setParams($args = null);
